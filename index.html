@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAUTY // TRUECOM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,900;1,6..96,400&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #030303;
+            --accent: #fff;
+            --violet: #8b5cf6;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            background-color: var(--bg);
+            color: var(--accent);
+            font-family: 'Bodoni Moda', serif;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* --- STRIKING INTRO --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .loader-title {
+            font-size: clamp(3rem, 15vw, 12rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            display: flex;
+            gap: 10px;
+        }
+
+        .loader-title span {
+            display: inline-block;
+            transform: scaleY(0) rotateX(90deg);
+            filter: blur(20px);
+            opacity: 0;
+        }
+
+        /* --- BACKGROUND --- */
+        #canvas-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        #cursor {
+            width: 10px; height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            z-index: 10001;
+            pointer-events: none;
+            mix-blend-mode: difference;
+        }
+
+        #cursor-ring {
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            transition: transform 0.15s ease-out;
+        }
+
+        /* --- UI STYLING --- */
+        .reveal { opacity: 0; transform: translateY(50px); }
+        .font-modern { font-family: 'Syncopate', sans-serif; }
+        
+        .hero-text {
+            font-size: clamp(3.5rem, 10vw, 9rem);
+            line-height: 0.8;
+            letter-spacing: -0.03em;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--violet);
+            transform: scale(1.02);
+        }
+
+        /* THE "STRETCH" HOVER EFFECT */
+        .stretch-link {
+            transition: letter-spacing 0.5s ease;
+        }
+        .stretch-link:hover {
+            letter-spacing: 0.5em;
+            color: var(--violet);
+        }
+
+        .grain::after {
+            content: "";
+            position: fixed; inset: 0;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body class="grain">
+
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- PRELOADER -->
+    <div id="loader">
+        <h1 class="loader-title">
+            <span>T</span><span>A</span><span>U</span><span>T</span><span>Y</span>
+        </h1>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <!-- NAV -->
+    <nav class="fixed top-0 w-full z-50 p-10 flex justify-between items-center mix-blend-difference reveal">
+        <div class="text-3xl font-bold tracking-tighter">T.</div>
+        <div class="hidden md:flex gap-12 text-[10px] font-modern uppercase tracking-[0.4em]">
+            <a href="#" class="stretch-link">Discovery</a>
+            <a href="#" class="stretch-link">Interests</a>
+            <a href="#" class="stretch-link">Truecom</a>
+        </div>
+        <button class="border border-white/20 px-8 py-2 text-[10px] font-modern uppercase tracking-widest hover:bg-white hover:text-black transition">Join</button>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="relative z-10">
+        
+        <!-- HERO -->
+        <section class="h-screen flex flex-col justify-center items-center text-center px-6">
+            <h2 class="reveal font-modern text-[10px] tracking-[0.8em] opacity-40 mb-8 uppercase">Digital Convergence</h2>
+            <h1 class="reveal hero-text italic font-black">
+                Seek the <br> <span class="opacity-20 hover:opacity-100 transition-opacity duration-1000">Unknown.</span>
+            </h1>
+            <div class="reveal mt-20 flex flex-col items-center">
+                <div class="w-px h-24 bg-gradient-to-b from-white to-transparent animate-bounce"></div>
+                <p class="mt-8 text-[11px] font-modern tracking-[0.3em] opacity-30">Scroll to Fold</p>
+            </div>
+        </section>
+
+        <!-- THE DUALITY SECTION -->
+        <section class="min-h-screen py-40 px-6 flex items-center justify-center">
+            <div class="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-12">
+                
+                <div class="reveal glass-card group">
+                    <div class="text-[10px] font-modern opacity-30 mb-10 tracking-[0.5em]">PHASE 01</div>
+                    <h3 class="text-6xl italic mb-6">Tauty</h3>
+                    <p class="text-sm opacity-40 leading-loose mb-10 font-light">
+                        A chaotic stream of collective consciousness. Memes, art, and echoes of the internet. Find your visual match before you speak a single word.
+                    </p>
+                    <div class="h-1 w-0 bg-white group-hover:w-full transition-all duration-1000"></div>
+                </div>
+
+                <div class="reveal glass-card group border-violet-500/20">
+                    <div class="text-[10px] font-modern opacity-30 mb-10 tracking-[0.5em] text-violet-400">PHASE 02</div>
+                    <h3 class="text-6xl italic mb-6 text-violet-100">Truecom</h3>
+                    <p class="text-sm opacity-40 leading-loose mb-10 font-light">
+                        The inner sanctum. Once a spark is found on Tauty, transition into a private, encrypted atmosphere designed for absolute intimacy.
+                    </p>
+                    <div class="h-1 w-0 bg-violet-500 group-hover:w-full transition-all duration-1000"></div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="p-20 text-center reveal opacity-20 text-[9px] font-modern tracking-[1em] uppercase">
+        Artifacts of Connection // 2024
+    </footer>
+
+    <script>
+        // --- 1. THE STRETCH INTRO ---
+        const tl = gsap.timeline();
+
+        window.addEventListener('load', () => {
+            tl.to(".loader-title span", { 
+                opacity: 1, 
+                scaleY: 1, 
+                rotateX: 0, 
+                filter: "blur(0px)", 
+                stagger: 0.15, 
+                duration: 1.5, 
+                ease: "expo.out" 
+            })
+            .to(".loader-title span", { 
+                letterSpacing: "1em", 
+                duration: 2, 
+                ease: "power4.inOut" 
+            }, "-=1")
+            .to("#loader", { 
+                yPercent: -100, 
+                duration: 2, 
+                ease: "expo.inOut" 
+            })
+            .to(".reveal", { 
+                opacity: 1, 
+                y: 0, 
+                stagger: 0.2, 
+                duration: 1.5, 
+                ease: "power4.out" 
+            }, "-=1")
+            .set("body", { overflowY: "auto" });
+        });
+
+        // --- 2. THE NEURAL PARTICLE BACKGROUND ---
+        let scene, camera, renderer, particles;
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Create Particles
+            const geo = new THREE.BufferGeometry();
+            const count = 3000;
+            const posArray = new Float32Array(count * 3);
+
+            for(let i=0; i < count * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 15;
+            }
+
+            geo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const mat = new THREE.PointsMaterial({
+                size: 0.015,
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.5,
+                blending: THREE.AdditiveBlending
+            });
+
+            particles = new THREE.Points(geo, mat);
+            scene.add(particles);
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particles.rotation.y += 0.001;
+            particles.rotation.x += 0.0005;
+            
+            // Subtle breathing scale
+            const time = Date.now() * 0.001;
+            particles.scale.set(
+                1 + Math.sin(time * 0.5) * 0.1,
+                1 + Math.sin(time * 0.5) * 0.1,
+                1 + Math.sin(time * 0.5) * 0.1
+            );
+
+            renderer.render(scene, camera);
+        }
+
+        // --- 3. MOUSE INTERACTION ---
+        const cursor = document.getElementById('cursor');
+        const ring = document.getElementById('cursor-ring');
+
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0 });
+            gsap.to(ring, { x: e.clientX - 20, y: e.clientY - 20, duration: 0.4 });
+
+            // Particles react to mouse
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+            gsap.to(particles.rotation, { y: x * 0.5, x: y * 0.5, duration: 2 });
+        });
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>

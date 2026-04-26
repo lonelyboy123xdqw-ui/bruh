@@ -7,25 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,900;1,6..96,400&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,900;1,900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #030303;
-            --accent: #fff;
-            --violet: #8b5cf6;
+            --bg: #050505;
+            --tauty-color: #ff3e81;
+            --truecom-color: #3e81ff;
         }
 
         body, html {
             margin: 0; padding: 0;
             background-color: var(--bg);
-            color: var(--accent);
+            color: #fff;
             font-family: 'Bodoni Moda', serif;
-            overflow-x: hidden;
+            overflow: hidden;
             cursor: none;
         }
 
-        /* --- STRIKING INTRO --- */
+        /* --- THE CINEMATIC ORB INTRO --- */
         #loader {
             position: fixed;
             inset: 0;
@@ -37,90 +37,103 @@
             overflow: hidden;
         }
 
-        .loader-title {
-            font-size: clamp(3rem, 15vw, 12rem);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -0.05em;
+        .orb-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            align-items: center;
         }
 
-        .loader-title span {
-            display: inline-block;
-            transform: scaleY(0) rotateX(90deg);
+        .orb {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            filter: blur(15px);
+            box-shadow: 0 0 50px currentcolor;
+        }
+
+        #orb-left { background: var(--tauty-color); left: -500%; }
+        #orb-right { background: var(--truecom-color); right: -500%; }
+
+        #central-glow {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
             filter: blur(20px);
             opacity: 0;
+            transform: scale(0);
         }
 
-        /* --- BACKGROUND --- */
+        #tauty-intro-text {
+            position: absolute;
+            font-size: clamp(4rem, 15vw, 15rem);
+            font-weight: 900;
+            font-style: italic;
+            opacity: 0;
+            transform: scale(0.2);
+            letter-spacing: -0.05em;
+            z-index: 10001;
+        }
+
+        /* --- INTERIOR AESTHETICS --- */
         #canvas-container {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 0;
-            pointer-events: none;
         }
 
-        /* --- CUSTOM CURSOR --- */
         #cursor {
-            width: 10px; height: 10px;
+            width: 8px; height: 8px;
             background: #fff;
             border-radius: 50%;
             position: fixed;
-            z-index: 10001;
+            z-index: 10005;
             pointer-events: none;
-            mix-blend-mode: difference;
         }
 
-        #cursor-ring {
+        #cursor-follower {
             width: 40px; height: 40px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 50%;
             position: fixed;
-            z-index: 10000;
+            z-index: 10004;
             pointer-events: none;
-            transition: transform 0.15s ease-out;
         }
 
-        /* --- UI STYLING --- */
-        .reveal { opacity: 0; transform: translateY(50px); }
+        .reveal { opacity: 0; transform: translateY(40px); }
         .font-modern { font-family: 'Syncopate', sans-serif; }
-        
-        .hero-text {
-            font-size: clamp(3.5rem, 10vw, 9rem);
-            line-height: 0.8;
-            letter-spacing: -0.03em;
-        }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(30px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 3rem;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            padding: 4rem;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .glass-card:hover {
             background: rgba(255, 255, 255, 0.05);
-            border-color: var(--violet);
-            transform: scale(1.02);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-10px) scale(1.02);
         }
 
-        /* THE "STRETCH" HOVER EFFECT */
-        .stretch-link {
-            transition: letter-spacing 0.5s ease;
-        }
-        .stretch-link:hover {
-            letter-spacing: 0.5em;
-            color: var(--violet);
+        .hero-title {
+            font-size: clamp(4rem, 12vw, 12rem);
+            line-height: 0.8;
+            letter-spacing: -0.04em;
         }
 
         .grain::after {
             content: "";
             position: fixed; inset: 0;
             background: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.15;
+            opacity: 0.1;
             pointer-events: none;
             z-index: 999;
         }
@@ -129,110 +142,117 @@
 <body class="grain">
 
     <div id="cursor"></div>
-    <div id="cursor-ring"></div>
+    <div id="cursor-follower"></div>
 
-    <!-- PRELOADER -->
+    <!-- CINEMATIC INTRO -->
     <div id="loader">
-        <h1 class="loader-title">
-            <span>T</span><span>A</span><span>U</span><span>T</span><span>Y</span>
-        </h1>
+        <div id="tauty-intro-text">TAUTY</div>
+        <div id="central-glow"></div>
+        <div class="orb-wrapper" id="orb-rotation-container">
+            <div class="orb" id="orb-left"></div>
+            <div class="orb" id="orb-right"></div>
+        </div>
     </div>
 
     <div id="canvas-container"></div>
 
-    <!-- NAV -->
+    <!-- UI -->
     <nav class="fixed top-0 w-full z-50 p-10 flex justify-between items-center mix-blend-difference reveal">
-        <div class="text-3xl font-bold tracking-tighter">T.</div>
-        <div class="hidden md:flex gap-12 text-[10px] font-modern uppercase tracking-[0.4em]">
-            <a href="#" class="stretch-link">Discovery</a>
-            <a href="#" class="stretch-link">Interests</a>
-            <a href="#" class="stretch-link">Truecom</a>
+        <div class="text-3xl font-bold italic">T.</div>
+        <div class="hidden md:flex gap-16 text-[10px] font-modern uppercase tracking-[0.6em] opacity-40">
+            <a href="#" class="hover:opacity-100 transition">Discovery</a>
+            <a href="#" class="hover:opacity-100 transition">Society</a>
+            <a href="#" class="hover:opacity-100 transition">Truecom</a>
         </div>
-        <button class="border border-white/20 px-8 py-2 text-[10px] font-modern uppercase tracking-widest hover:bg-white hover:text-black transition">Join</button>
+        <div class="font-modern text-[10px] tracking-widest border-b border-white/20 pb-1 cursor-pointer">ACCESS</div>
     </nav>
 
-    <!-- MAIN CONTENT -->
     <main class="relative z-10">
-        
-        <!-- HERO -->
         <section class="h-screen flex flex-col justify-center items-center text-center px-6">
-            <h2 class="reveal font-modern text-[10px] tracking-[0.8em] opacity-40 mb-8 uppercase">Digital Convergence</h2>
-            <h1 class="reveal hero-text italic font-black">
-                Seek the <br> <span class="opacity-20 hover:opacity-100 transition-opacity duration-1000">Unknown.</span>
+            <h1 class="reveal hero-title italic">
+                Beyond <br> <span class="opacity-10">Sight.</span>
             </h1>
-            <div class="reveal mt-20 flex flex-col items-center">
-                <div class="w-px h-24 bg-gradient-to-b from-white to-transparent animate-bounce"></div>
-                <p class="mt-8 text-[11px] font-modern tracking-[0.3em] opacity-30">Scroll to Fold</p>
+            <p class="reveal mt-12 max-w-sm text-[10px] font-modern tracking-[0.4em] opacity-40 leading-loose">
+                Dualistic Digital Existence // Transition from visual spark to soul connection.
+            </p>
+            <div class="reveal mt-20">
+                <div class="w-px h-24 bg-gradient-to-b from-white to-transparent"></div>
             </div>
         </section>
 
-        <!-- THE DUALITY SECTION -->
+        <!-- CARDS -->
         <section class="min-h-screen py-40 px-6 flex items-center justify-center">
-            <div class="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-16">
                 
-                <div class="reveal glass-card group">
-                    <div class="text-[10px] font-modern opacity-30 mb-10 tracking-[0.5em]">PHASE 01</div>
+                <div class="reveal glass-card">
                     <h3 class="text-6xl italic mb-6">Tauty</h3>
-                    <p class="text-sm opacity-40 leading-loose mb-10 font-light">
-                        A chaotic stream of collective consciousness. Memes, art, and echoes of the internet. Find your visual match before you speak a single word.
+                    <p class="text-sm opacity-40 leading-loose font-light">
+                        The aesthetic gateway. High-fashion, niche memes, and visual artifacts. Find your reflection in others.
                     </p>
-                    <div class="h-1 w-0 bg-white group-hover:w-full transition-all duration-1000"></div>
+                    <div class="mt-12 h-px w-20 bg-white/20"></div>
                 </div>
 
-                <div class="reveal glass-card group border-violet-500/20">
-                    <div class="text-[10px] font-modern opacity-30 mb-10 tracking-[0.5em] text-violet-400">PHASE 02</div>
-                    <h3 class="text-6xl italic mb-6 text-violet-100">Truecom</h3>
-                    <p class="text-sm opacity-40 leading-loose mb-10 font-light">
-                        The inner sanctum. Once a spark is found on Tauty, transition into a private, encrypted atmosphere designed for absolute intimacy.
+                <div class="reveal glass-card" style="border-color: rgba(62, 129, 255, 0.2);">
+                    <h3 class="text-6xl italic mb-6 text-blue-200">Truecom</h3>
+                    <p class="text-sm opacity-40 leading-loose font-light">
+                        The intimacy layer. A private, silent atmosphere where the mask of discovery falls away.
                     </p>
-                    <div class="h-1 w-0 bg-violet-500 group-hover:w-full transition-all duration-1000"></div>
+                    <div class="mt-12 h-px w-20 bg-blue-500/20"></div>
                 </div>
 
             </div>
         </section>
-
     </main>
 
-    <footer class="p-20 text-center reveal opacity-20 text-[9px] font-modern tracking-[1em] uppercase">
-        Artifacts of Connection // 2024
-    </footer>
-
     <script>
-        // --- 1. THE STRETCH INTRO ---
+        // --- 1. THE CINEMATIC INTRO TIMELINE ---
         const tl = gsap.timeline();
 
         window.addEventListener('load', () => {
-            tl.to(".loader-title span", { 
-                opacity: 1, 
-                scaleY: 1, 
-                rotateX: 0, 
-                filter: "blur(0px)", 
-                stagger: 0.15, 
-                duration: 1.5, 
-                ease: "expo.out" 
-            })
-            .to(".loader-title span", { 
-                letterSpacing: "1em", 
-                duration: 2, 
-                ease: "power4.inOut" 
-            }, "-=1")
-            .to("#loader", { 
-                yPercent: -100, 
-                duration: 2, 
-                ease: "expo.inOut" 
-            })
-            .to(".reveal", { 
-                opacity: 1, 
-                y: 0, 
-                stagger: 0.2, 
-                duration: 1.5, 
-                ease: "power4.out" 
-            }, "-=1")
-            .set("body", { overflowY: "auto" });
+            tl.to("#orb-left", { left: "0%", duration: 1.2, ease: "power4.inOut" })
+              .to("#orb-right", { right: "0%", duration: 1.2, ease: "power4.inOut" }, "-=1.2")
+              .to("#orb-rotation-container", { 
+                  rotate: 720, 
+                  duration: 2, 
+                  ease: "none",
+                  repeat: 0 
+              })
+              .to(".orb", { 
+                  width: 10, height: 10, 
+                  filter: "blur(5px)", 
+                  duration: 0.5 
+              }, "-=0.5")
+              .to("#central-glow", { 
+                  opacity: 1, 
+                  scale: 300, 
+                  duration: 1.5, 
+                  ease: "expo.in" 
+              })
+              .to("#tauty-intro-text", { 
+                  opacity: 1, 
+                  scale: 1, 
+                  duration: 1.5, 
+                  ease: "expo.out" 
+              }, "-=0.5")
+              .to("#loader", { 
+                  opacity: 0, 
+                  duration: 1.5, 
+                  ease: "power4.inOut", 
+                  delay: 1 
+              })
+              .to(".reveal", { 
+                  opacity: 1, 
+                  y: 0, 
+                  stagger: 0.2, 
+                  duration: 1.5, 
+                  ease: "expo.out" 
+              }, "-=1")
+              .set("#loader", { display: "none" })
+              .set("body", { overflowY: "auto" });
         });
 
-        // --- 2. THE NEURAL PARTICLE BACKGROUND ---
-        let scene, camera, renderer, particles;
+        // --- 2. THE IRIDESCENT NEURAL WEB ---
+        let scene, camera, renderer, particles, lines;
 
         function init() {
             scene = new THREE.Scene();
@@ -241,29 +261,24 @@
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-            // Create Particles
+            // Create particles
+            const count = 200;
+            const coords = new Float32Array(count * 3);
+            for(let i=0; i < count * 3; i++) coords[i] = (Math.random() - 0.5) * 12;
+
             const geo = new THREE.BufferGeometry();
-            const count = 3000;
-            const posArray = new Float32Array(count * 3);
-
-            for(let i=0; i < count * 3; i++) {
-                posArray[i] = (Math.random() - 0.5) * 15;
-            }
-
-            geo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const mat = new THREE.PointsMaterial({
-                size: 0.015,
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.5,
-                blending: THREE.AdditiveBlending
-            });
-
+            geo.setAttribute('position', new THREE.BufferAttribute(coords, 3));
+            
+            const mat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff });
             particles = new THREE.Points(geo, mat);
             scene.add(particles);
+
+            // Create connections (The Catchy unique part)
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.1 });
+            lines = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(7, 2)), lineMat);
+            scene.add(lines);
 
             animate();
         }
@@ -271,34 +286,30 @@
         function animate() {
             requestAnimationFrame(animate);
             particles.rotation.y += 0.001;
-            particles.rotation.x += 0.0005;
-            
-            // Subtle breathing scale
-            const time = Date.now() * 0.001;
-            particles.scale.set(
-                1 + Math.sin(time * 0.5) * 0.1,
-                1 + Math.sin(time * 0.5) * 0.1,
-                1 + Math.sin(time * 0.5) * 0.1
-            );
+            lines.rotation.y -= 0.0005;
+            lines.rotation.z += 0.0005;
 
+            // Breathing effect
+            const time = Date.now() * 0.001;
+            lines.scale.setScalar(1 + Math.sin(time) * 0.1);
+            
             renderer.render(scene, camera);
         }
 
-        // --- 3. MOUSE INTERACTION ---
+        // --- 3. INTERACTIVE EFFECTS ---
         const cursor = document.getElementById('cursor');
-        const ring = document.getElementById('cursor-ring');
+        const follower = document.getElementById('cursor-follower');
 
         document.addEventListener('mousemove', (e) => {
             gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0 });
-            gsap.to(ring, { x: e.clientX - 20, y: e.clientY - 20, duration: 0.4 });
+            gsap.to(follower, { x: e.clientX - 20, y: e.clientY - 20, duration: 0.3 });
 
-            // Particles react to mouse
+            // Parallax 3D movement
             const x = (e.clientX / window.innerWidth) - 0.5;
             const y = (e.clientY / window.innerHeight) - 0.5;
-            gsap.to(particles.rotation, { y: x * 0.5, x: y * 0.5, duration: 2 });
+            gsap.to(scene.rotation, { y: x * 0.5, x: y * 0.5, duration: 2 });
         });
 
-        // Resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
